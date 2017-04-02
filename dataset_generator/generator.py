@@ -49,6 +49,8 @@ class Tag:
     def is_can_has_parent(self, parent):
         if parent.name == 'a' and self.name == 'a':
             return False
+        if parent.name == 'a' and self.name == 'button':
+            return False
         if parent.name == 'a' and self.name == 'textarea':
             return False
         if parent.name == 'a' and self.name == 'input':
@@ -63,22 +65,40 @@ class Tag:
 
 
 class DatasetGenerator:
-    BASE_TEMPLATE = """
-    <html>
-    <head>
-    <style>
-    body {{
-        background: white;
-    }}
-    div {{
-        background: green;
-    }}
-    </style>
-    </head>
-    <body>
-    {}
-    </body>
-    </html>
+    TEXT_CONTENT_MAP = {
+        'button': 'Button',
+        'div': 'Lore ipsum Lore ipsum',
+        'p': 'abcdefghijklmnopqrstuvwxyz',
+        'td': 'table row',
+        'li': 'list items',
+        'a': 'This is the link',
+    }
+    BASE_TEMPLATE = \
+"""
+<html>
+<head>
+<style>
+body {{
+    background: #eee;
+    color: #449EF3;
+}}
+div {{
+    background: #50C878;
+    padding: 10px;
+    margin: 10px;
+    border: 2px solid #F4A460;
+    border-radius: 5px;
+}}
+a {{
+    text-decoration: underline;
+    color: #2A52BE;
+}}
+</style>
+</head>
+<body>
+{}
+</body>
+</html>
     """
     ITEM_TEMPLATE = '<{tag}>{items}</{tag}>'
     INPUT_ITEM_TEMPLATE = '<{tag}/>'
@@ -99,11 +119,11 @@ class DatasetGenerator:
             template = self.INPUT_ITEM_TEMPLATE
 
         items = ''
-        text = ''.join(random.sample(string.ascii_letters, random.randint(5, 15)))
 
         if item.items:
             items = ''.join([self._render_item(it) for it in item.items])
         elif item.can_contain_text():
+            text = self.TEXT_CONTENT_MAP[item.name]
             items = text
         return self._clear_empty_tags(template.format(tag=item.name, items=items))
 
@@ -133,14 +153,16 @@ class DatasetGenerator:
         next_item_name = self._get_next_item_name()
 
         new_item = self._generate_item()
-        html = self.BASE_TEMPLATE.format(
-            self._render_item(new_item)
-        )
-        next_html_name = 'htmls/{}.html'.format(next_item_name)
-        print(html, file=open(next_html_name, 'w'))
+        rendered_item = self._render_item(new_item)
+        if rendered_item:
+            html = self.BASE_TEMPLATE.format(
+                rendered_item
+            )
+            next_html_name = 'htmls/{}.html'.format(next_item_name)
+            print(html, file=open(next_html_name, 'w'))
 
-        next_image_name = 'images/{}.jpg'.format(next_item_name)
-        call(['phantomjs', 'render_html.js', next_html_name, next_image_name])
+            next_image_name = 'images/{}.jpg'.format(next_item_name)
+            call(['phantomjs', 'render_html.js', next_html_name, next_image_name])
 
 
 if __name__ == "__main__":
