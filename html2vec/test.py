@@ -14,11 +14,10 @@ TEST_HTML = """
 </html>
 """
 
-TEST_SPLIT = ['<', 'html', '>', '<', 'body', '>', '<', 'div', '>', '<', 'button', '>', '</', 'button', '>', '</', 'div',
-              '>',
-              '<', 'div', '>', '<', 'input', '/>', '</', 'div', '>', '</', 'body', '>', '</', 'html', '>']
+TEST_SPLIT = ['<html', '>', '<body', '>', '<div', '>', '<button', '>', '</button>', '</div>',
+              '<div', '>', '<input', '/>', '</div>', '</body>', '</html>']
 
-TEST_VEC = [2, 12, 3, 2, 4, 3, 2, 7, 3, 2, 9, 3, 0, 9, 3, 0, 7, 3, 2, 7, 3, 2, 5, 1, 0, 7, 3, 0, 4, 3, 0, 12, 3]
+TEST_VEC = [18, 2, 3, 2, 9, 2, 13, 2, 14, 10, 9, 2, 5, 1, 10, 4, 19]
 
 TEST_REVERSED_HTML = '<html><body><div><button></button></div><div><input/></div></body></html>'
 
