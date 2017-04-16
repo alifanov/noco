@@ -4,7 +4,7 @@ from html_renderer import HTMLGame
 from html2vec.converter import HTML2VECConverter
 from PIL import Image
 
-TEST_HTML = '<html><body><p>abcdefghijklmnopqrstuvwxyz</p></body></html>'
+TEST_HTML = '<html><body><p>PText</p></body></html>'
 
 
 class HTMLGameTestCase(unittest.TestCase):

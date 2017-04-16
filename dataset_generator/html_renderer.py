@@ -48,12 +48,12 @@ class HTMLGame:
     Environment for build HTML and return state for each step
     """
     TEXT_CONTENT_MAP = {
-        'button': 'Button',
-        'div': 'Lore ipsum Lore ipsum',
+        'button': 'ButtonText',
+        'div': 'DivText',
         'p': 'PText',
-        'td': 'table row',
-        'li': 'list items',
-        'a': 'This is the link',
+        'td': 'TableCellText',
+        'li': 'ListItemText',
+        'a': 'LinkText',
     }
 
     def __init__(self, result_image):
