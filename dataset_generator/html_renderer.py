@@ -1,6 +1,8 @@
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from PyQt4.QtWebKit import *
+import numpy as np
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWebKitWidgets import *
 from PIL import Image
 
 
@@ -19,12 +21,16 @@ class HTMLRenderer(QWebView):
         frame.render(painter)
         painter.end()
         image = image.convertToFormat(QImage.Format_RGB888)
-        bytes = image.bits().asstring(image.numBytes())
+        bytes = image.bits().asstring(image.byteCount())
 
         mode = "RGB"
         pilimg = Image.frombuffer(mode, (image.width(), image.height()), bytes, 'raw', mode, 0, 1)
         pilimg.show()
-        image.save('output.png')
+
+        return np.array(pilimg)
+
+        # image.save('output.png')
 
 s = HTMLRenderer()
-s.render('<html style="background: yellow; color: green;"><body><p>123</p></body></html>')
+data = s.render('<html style="background: yellow; color: green;"><body><p>123</p></body></html>')
+print(data)
