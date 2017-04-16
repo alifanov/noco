@@ -68,7 +68,7 @@ class DatasetGenerator:
     TEXT_CONTENT_MAP = {
         'button': 'Button',
         'div': 'Lore ipsum Lore ipsum',
-        'p': 'abcdefghijklmnopqrstuvwxyz',
+        'p': 'PText',
         'td': 'table row',
         'li': 'list items',
         'a': 'This is the link',
