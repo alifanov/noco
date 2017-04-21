@@ -7,6 +7,7 @@ import numpy as np
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtWebKitWidgets import *
+from PyQt5.QtCore import *
 from PIL import Image
 
 
@@ -14,9 +15,38 @@ class HTMLRenderer(QWebView):
     """
     Renderer for HTML to numpy data
     """
+    HTML_WRAPPER = """
+<html>
+<style>
+body {{
+    background: #eee;
+    color: #449EF3;
+}}
+div {{
+    background: #50C878;
+    padding: 10px;
+    margin: 10px;
+    border: 2px solid #F4A460;
+    border-radius: 5px;
+}}
+p {{
+    border: 1px solid #00b3f4;
+    border-radius: 5px;
+    padding: 10px;
+}}
+a {{
+    text-decoration: underline;
+    color: #2A52BE;
+}}
+</style>
+{}
+</html>
+"""
+
     def __init__(self):
         self.app = QApplication([])
         QWebView.__init__(self)
+        self.settings().setUserStyleSheetUrl(QUrl.fromLocalFile('style.css'))
 
     def render(self, html):
         """
@@ -24,7 +54,7 @@ class HTMLRenderer(QWebView):
         :param html: 
         :return: 
         """
-        self.setHtml(html)
+        self.setHtml(HTMLRenderer.HTML_WRAPPER.format(html))
         frame = self.page().mainFrame()
         self.page().setViewportSize(frame.contentsSize())
         # render image
@@ -39,7 +69,7 @@ class HTMLRenderer(QWebView):
         pilimg = Image.frombuffer(mode, (image.width(), image.height()), bytes, 'raw', mode, 0, 1)
         # pilimg.show()
 
-        # pilimg.save('test_render.png')
+        pilimg.save('test_render.png')
         return np.array(pilimg)
 
 
@@ -85,4 +115,4 @@ class HTMLGame:
 
 
 # s = HTMLRenderer()
-# data = s.render('<html><body><p>abcdefghijklmnopqrstuvwxyz</p></body></html>')
+# data = s.render('<html><body><p>PText</p></body></html>')

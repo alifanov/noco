@@ -1,0 +1,20 @@
+body {
+    background: #eee;
+    color: #449EF3;
+}
+div {
+    background: #50C878;
+    padding: 10px;
+    margin: 10px;
+    border: 2px solid #F4A460;
+    border-radius: 5px;
+}
+p {
+    border: 1px solid #00b3f4;
+    border-radius: 5px;
+    padding: 10px;
+}
+a {
+    text-decoration: underline;
+    color: #2A52BE;
+}
