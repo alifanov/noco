@@ -1,3 +1,4 @@
+import random
 import sys, os
 sys.path.append('..')
 
@@ -90,6 +91,11 @@ class HTMLGame:
         self.result_image = np.array(result_image)
         self.renderer = HTMLRenderer()
         self.html_covr = HTML2VECConverter()
+        self.html_vec = []
+
+    def reset(self):
+        self.__init__(self.result_image)
+        return self.step(self.html_vec)
 
     def fill_text_for_html(self, html):
         for k,v in HTMLGame.TEXT_CONTENT_MAP.items():
@@ -98,13 +104,17 @@ class HTMLGame:
             html = html.replace(tag, tag_text)
         return html
 
-    def step(self, html_vec):
+    def action_sample(self):
+        return random.choice(HTML2VECConverter.html_int_map.values())
+
+    def step(self, action):
         """
         Render HTML and return state, reward, done for each step
-        :param html_vec: 
+        :param action: 
         :return: 
         """
-        html = self.html_covr.convert(html_vec, direction=HTML2VECConverter.VEC2HTML_DIRECTION)
+        self.html_vec.append(action)
+        html = self.html_covr.convert(self.html_vec, direction=HTML2VECConverter.VEC2HTML_DIRECTION)
         html = self.fill_text_for_html(html)
         state = self.renderer.render(html)
         reward = 1.0 - distance.braycurtis(self.result_image.flatten(), state.flatten())
