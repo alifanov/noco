@@ -1,7 +1,7 @@
 import tensorflow as tf
 import numpy as np
 from dataset_generator.html_renderer import HTMLGame
-input = tf.placehodler(shape=[640, 480, 3], dtype=tf.uint8)
+input = tf.placeholder(shape=[640, 480, 3], dtype=tf.uint8)
 W = tf.Variable(tf.random_normal([640, 480, 3], stddev=0.35),
                       name="weights")
 
@@ -34,7 +34,7 @@ with tf.Session() as sess:
             if np.random.rand(1) < e:
                 a[0] = env.action_sample()
             # Get new state and reward from environment
-            next_state, r, d, _ = env.step(a[0])
+            next_state, r, d, = env.step(a[0])
             # Obtain the Q' values by feeding the new state through our network
             Q1 = sess.run(Qout, feed_dict={input: next_state})
             # Obtain maxQ' and set our target value for chosen action.
@@ -44,7 +44,7 @@ with tf.Session() as sess:
             # Train our network using target and predicted Q values
             _, W1 = sess.run([updateModel, W], feed_dict={input: state, nextQ: targetQ})
             rAll += r
-            s = s1
+            state = next_state
             if d == True:
                 # Reduce chance of random action as we train the model.
                 e = 1. / ((i / 50) + 10)

@@ -95,7 +95,8 @@ class HTMLGame:
 
     def reset(self):
         self.__init__(self.result_image)
-        return self.step(self.html_vec)
+        state, reward, done = self.step(self.html_vec)
+        return state
 
     def fill_text_for_html(self, html):
         for k,v in HTMLGame.TEXT_CONTENT_MAP.items():
