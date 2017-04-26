@@ -49,7 +49,7 @@ a {{
         QWebView.__init__(self)
         self.settings().setUserStyleSheetUrl(QUrl.fromLocalFile('style.css'))
 
-    def render(self, html):
+    def render_html(self, html):
         """
         Render HTML to numpy array
         :param html: 
@@ -58,6 +58,7 @@ a {{
         self.setHtml(HTMLRenderer.HTML_WRAPPER.format(html))
         frame = self.page().mainFrame()
         self.page().setViewportSize(frame.contentsSize())
+
         # render image
         image = QImage(self.page().viewportSize(), QImage.Format_RGB888)
         painter = QPainter(image)
@@ -70,7 +71,7 @@ a {{
         pilimg = Image.frombuffer(mode, (image.width(), image.height()), bytes, 'raw', mode, 0, 1)
         # pilimg.show()
 
-        pilimg.save('test_render.png')
+        # pilimg.save('test_render2.png')
         return np.array(pilimg)
 
 
@@ -87,15 +88,17 @@ class HTMLGame:
         'a': 'LinkText',
     }
 
-    def __init__(self, result_image):
-        self.result_image = np.array(result_image)
-        self.renderer = HTMLRenderer()
+    def __init__(self, result_image, renderer):
+        self.start_image = result_image
+        img = Image.open(self.start_image)
+        self.result_image = np.array(img)
         self.html_covr = HTML2VECConverter()
         self.html_vec = []
+        self.renderer = renderer
 
     def reset(self):
-        self.__init__(self.result_image)
-        state, reward, done = self.step(self.html_vec)
+        self.__init__(self.start_image, self.renderer)
+        state, reward, done = self.step()
         return state
 
     def fill_text_for_html(self, html):
@@ -106,19 +109,23 @@ class HTMLGame:
         return html
 
     def action_sample(self):
-        return random.choice(HTML2VECConverter.html_int_map.values())
+        choices = [d for d in HTML2VECConverter.html_int_map.values()]
+        return random.choice(choices)
 
-    def step(self, action):
+    def step(self, action=None):
         """
         Render HTML and return state, reward, done for each step
         :param action: 
         :return: 
         """
-        self.html_vec.append(action)
+        if action is not None:
+            self.html_vec.append(action)
         html = self.html_covr.convert(self.html_vec, direction=HTML2VECConverter.VEC2HTML_DIRECTION)
         html = self.fill_text_for_html(html)
-        state = self.renderer.render(html)
-        reward = 1.0 - distance.braycurtis(self.result_image.flatten(), state.flatten())
+        state = self.renderer.render_html(html)
+        print('HTML: ', html)
+        # print('Distance: ', distance.braycurtis(self.result_image.flatten(), state.flatten()))
+        reward = 1.0 if distance.braycurtis(self.result_image.flatten(), state.flatten()) == 0 else 0
         done = False
         if reward == 1.0:
             done = True

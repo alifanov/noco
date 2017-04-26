@@ -4,42 +4,43 @@ from collections import OrderedDict
 class HTML2VECConverter:
     HTML2VEC_DIRECTION = 0
     VEC2HTML_DIRECTION = 1
-
     html_int_map = {
-        '/>': 1,
-        '>': 2,
-        '<body': 3,
-        '</body>': 4,
-        '<input': 5,
-        '</input>': 6,
-        '<table': 7,
-        '</table>': 8,
-        '<div': 9,
-        '</div>': 10,
-        '<p': 11,
-        '</p>': 12,
-        '<button': 13,
-        '</button>': 14,
-        'class=': 15,
-        '<head': 16,
-        '</head>': 17,
-        '<html': 18,
-        '</html>': 19,
-        '<li': 20,
-        '</li>': 21,
-        '<ul': 22,
-        '</ul>': 23,
-        '<ol': 24,
-        '</ol>': 25,
-        '<tr': 26,
-        '</tr>': 27,
-        '<td': 28,
-        '</td>': 29,
-        '<link': 30,
-        '</link>': 31,
-        '<textarea': 32,
-        '</textarea>': 33
+        '/>': 0,
+        '>': 1,
+        '<p': 2,
+        '</p>': 3,
+        # '<body': 4,
+        # '</body>': 5,
+        # '': 6,
+        # '<input': 7,
+        # '</input>': 8,
+        # '<table': 9,
+        # '</table>': 10,
+        # '<div': 11,
+        # '</div>': 12,
+        # '<button': 13,
+        # '</button>': 14,
+        # 'class=': 15,
+        # '<head': 16,
+        # '</head>': 17,
+        # '<html': 18,
+        # '</html>': 19,
+        # '<li': 20,
+        # '</li>': 21,
+        # '<ul': 22,
+        # '</ul>': 23,
+        # '<ol': 24,
+        # '</ol>': 25,
+        # '<tr': 26,
+        # '</tr>': 27,
+        # '<td': 28,
+        # '</td>': 29,
+        # '<link': 30,
+        # '</link>': 31,
+        # '<textarea': 32,
+        # '</textarea>': 33
     }
+
 
     def __init__(self):
         self.html_int_map = OrderedDict(sorted(self.html_int_map.items(), key=lambda x: x[1]))
@@ -67,6 +68,7 @@ class HTML2VECConverter:
         return result
 
     def convert(self, data, direction=HTML2VEC_DIRECTION):
+        result = ''
         if direction == self.HTML2VEC_DIRECTION:
             result = [self.html_int_map[node] for node in self.split_html(data)]
         elif direction == self.VEC2HTML_DIRECTION:
