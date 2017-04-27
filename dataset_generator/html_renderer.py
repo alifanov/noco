@@ -112,20 +112,25 @@ class HTMLGame:
         choices = [d for d in HTML2VECConverter.html_int_map.values()]
         return random.choice(choices)
 
-    def step(self, action=None):
+    def step(self, action=4):
         """
         Render HTML and return state, reward, done for each step
         :param action: 
         :return: 
         """
-        if action is not None:
-            self.html_vec.append(action)
+        self.html_vec.append(action)
         html = self.html_covr.convert(self.html_vec, direction=HTML2VECConverter.VEC2HTML_DIRECTION)
         html = self.fill_text_for_html(html)
         state = self.renderer.render_html(html)
-        print('HTML: ', html)
+        if len(self.html_vec) == 6:
+            print('HTML: ', html)
         # print('Distance: ', distance.braycurtis(self.result_image.flatten(), state.flatten()))
-        reward = 1.0 if distance.braycurtis(self.result_image.flatten(), state.flatten()) == 0 else 0
+        reward = 1.0 if distance.braycurtis(self.result_image.flatten(), state.flatten()) == 0 else 0.0
+
+        state = state.flatten()
+        state += np.ones(6, dtype=np.uint8)[action:action+1]
+        state = np.reshape(state, [1, -1])
+
         done = False
         if reward == 1.0:
             done = True

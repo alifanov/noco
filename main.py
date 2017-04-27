@@ -1,21 +1,21 @@
 import tensorflow as tf
 import numpy as np
 from dataset_generator.html_renderer import HTMLGame, HTMLRenderer
-input = tf.placeholder(shape=[480, 640, 3], dtype=tf.float32)
-input_shaped = tf.reshape(input, [1, -1])
-W = tf.Variable(tf.zeros([640*480*3, 4]), name="weights")
+input = tf.placeholder(shape=[None, 480*640*3], dtype=tf.float32)
+# input_shaped = tf.reshape(input, [1, -1])
+W = tf.Variable(tf.random_normal([640*480*3, 6]), name="weights")
 
-Qout = tf.matmul(input_shaped, W)
+Qout = tf.matmul(input, W)
 predict = tf.argmax(Qout, 1)
 
-nextQ = tf.placeholder(shape=[1, 4], dtype=tf.float32)
+nextQ = tf.placeholder(shape=[1, 6], dtype=tf.float32)
 loss = tf.reduce_sum(tf.square(nextQ - Qout))
 trainer = tf.train.GradientDescentOptimizer(learning_rate=0.1)
 updateModel = trainer.minimize(loss)
 
 y = .99
 e = 0.5
-num_episodes = 2000
+num_episodes = 10000
 
 renderer = HTMLRenderer()
 
@@ -50,8 +50,10 @@ with tf.Session() as sess:
             state = next_state
             if d:
                 # Reduce chance of random action as we train the model.
-                # e = 1. / ((i / 50) + 10)
+                e = 1. / ((i / 50) + 10)
                 found_count += 1
                 break
-        print('Total reward: ', rAll)
-        print('Founded solution: ', found_count)
+        if i%10 == 0:
+            print('Episode: ', i)
+            print('Total reward: ', rAll)
+            print('Founded solution: ', found_count)
