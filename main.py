@@ -1,23 +1,23 @@
 import tensorflow as tf
 import numpy as np
 from dataset_generator.html_renderer import HTMLGame, HTMLRenderer
-input = tf.placeholder(shape=[None, 100*100*3 + 6], dtype=tf.float32)
+input = tf.placeholder(shape=[None, 100*100*3 + 3], dtype=tf.float32)
 # input_shaped = tf.reshape(input, [1, -1])
-W = tf.Variable(tf.zeros([100*100*3 + 6, 6]), name="weights")
+W = tf.Variable(tf.zeros([100*100*3 + 3, 4]), name="weights")
 
 Qout = tf.matmul(input, W)
 predict = tf.argmax(Qout, 1)
 
-nextQ = tf.placeholder(shape=[1, 6], dtype=tf.float32)
+nextQ = tf.placeholder(shape=[1, 4], dtype=tf.float32)
 loss = tf.reduce_sum(tf.square(nextQ - Qout))
-trainer = tf.train.GradientDescentOptimizer(learning_rate=0.1)
+trainer = tf.train.GradientDescentOptimizer(learning_rate=0.9)
 updateModel = trainer.minimize(loss)
 
 negative_memory = []
 
 y = .99
-e = 0.9
-num_episodes = 50000
+e = 0.5
+num_episodes = 600000
 
 renderer = HTMLRenderer()
 
@@ -32,21 +32,22 @@ with tf.Session() as sess:
         d = False
         j = 0
         # The Q-Network
-        while j < 6:
+        while j < 3:
             j += 1
             # Choose an action by greedily (with e chance of random action) from the Q-network
             a, allQ = sess.run([predict, Qout], feed_dict={input: state})
             state_hash = hash(state.tostring())
-            memory_item = (state_hash, a[0])
             if np.random.rand(1) < e:
                 a[0] = env.action_sample()
-                memory_item = (state_hash, a[0])
-                if memory_item in negative_memory:
-                    for action in env.action_samples():
-                        memory_item = (state_hash, action)
-                        if memory_item not in negative_memory:
-                            a[0] = action
-                            break
+
+            memory_item = (state_hash, a[0])
+            # print(memory_item)
+            if memory_item in negative_memory:
+                for action in env.action_samples():
+                    memory_item = (state_hash, action)
+                    if memory_item not in negative_memory:
+                        a[0] = action
+                        break
             # Get new state and reward from environment
             next_state, r, d, = env.step(a[0])
 
@@ -69,7 +70,7 @@ with tf.Session() as sess:
             state = next_state
             if d:
                 # Reduce chance of random action as we train the model.
-                e = 1. / ((i / 50) + 10)
+                e *= e
                 found_count += 1
                 break
         if i % 50 == 0:

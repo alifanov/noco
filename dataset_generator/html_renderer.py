@@ -40,7 +40,9 @@ a {{
     color: #2A52BE;
 }}
 </style>
+<body>
 {}
+</body>
 </html>
 """
 
@@ -72,7 +74,7 @@ a {{
         pilimg = Image.frombuffer(mode, (image.width(), image.height()), bytes, 'raw', mode, 0, 1)
         # pilimg.show()
 
-        pilimg.save('test_render2.png')
+        # pilimg.save('test_render2.png')
         return np.array(pilimg)
 
 
@@ -95,7 +97,7 @@ class HTMLGame:
         self.result_image = np.array(img)
         self.html_covr = HTML2VECConverter()
         self.idx = 0
-        self.html_vec = [0, 0, 0, 0, 0, 0]
+        self.html_vec = [0, 0, 0]
         self.renderer = renderer
 
     def reset(self):
@@ -119,23 +121,25 @@ class HTMLGame:
         choices = [d for d in HTML2VECConverter.html_int_map.values()]
         return choices
 
-    def step(self, action=4):
+    def step(self, action=None):
         """
         Render HTML and return state, reward, done for each step
         :param action: 
         :return: 
         """
         # print(self.idx)
+        if action is None:
+            action = self.action_sample()
         self.html_vec[self.idx] = action
         html = self.html_covr.convert(self.html_vec, direction=HTML2VECConverter.VEC2HTML_DIRECTION)
         # html = self.fill_text_for_html(html)
         # state = self.renderer.render_html(html)
         state = np.ones([100*100*3,], dtype=np.float32)
-        if len(self.html_vec) == 6 and self.html_vec[:2] == [4, 1, 2, 1]:
+        if len(self.html_vec) == 3 and self.html_vec == [2,1,3]:
             print('HTML: ', html)
         # print('Distance: ', distance.braycurtis(self.result_image.flatten(), state.flatten()))
         # reward = 1.0 if distance.braycurtis(self.result_image.flatten(), state.flatten()) == 0 else -1.0
-        reward = 1.0 if self.html_vec == [4,1,2,1,3,5] else -1.0
+        reward = 1000.0 if self.html_vec == [2, 1, 3] else -1.0
 
         state = state.flatten()
         # one_hot_action = np.eye(6, dtype=np.uint8)[action:action+1][0]
@@ -145,7 +149,7 @@ class HTMLGame:
         self.idx += 1
 
         done = False
-        if reward == 1.0:
+        if reward == 1000.0:
             done = True
         return state, reward, done
 
