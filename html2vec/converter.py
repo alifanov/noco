@@ -5,10 +5,11 @@ class HTML2VECConverter:
     HTML2VEC_DIRECTION = 0
     VEC2HTML_DIRECTION = 1
     html_int_map = {
-        '/>': 0,
+        '': 0,
         '>': 1,
         '<p': 2,
         '</p>': 3,
+        # '/>': 4,
         # '<body': 4,
         # '</body>': 5,
         # '': 6,

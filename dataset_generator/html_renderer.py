@@ -11,6 +11,8 @@ from PyQt5.QtWebKitWidgets import *
 from PyQt5.QtCore import *
 from PIL import Image
 
+def decode_state(state):
+    return [np.argmax(v) for v in np.split(state[0], 3)]
 
 class HTMLRenderer(QWebView):
     """
@@ -50,7 +52,6 @@ a {{
         self.app = QApplication([])
         QWebView.__init__(self)
         self.resize(100, 100)
-        self.settings().setUserStyleSheetUrl(QUrl.fromLocalFile('style.css'))
 
     def render_html(self, html):
         """
@@ -102,8 +103,15 @@ class HTMLGame:
 
     def reset(self):
         self.__init__(self.start_image, self.renderer)
-        state, reward, done = self.step()
-        self.idx = 0
+
+        html = self.html_covr.convert(self.html_vec, direction=HTML2VECConverter.VEC2HTML_DIRECTION)
+        html = self.fill_text_for_html(html)
+
+        state = self.renderer.render_html(html)
+        state = state.flatten()
+        state = np.concatenate((state, np.array([np.identity(4)[v:v+1] for v in self.html_vec]).flatten()), axis=0)
+        state = np.reshape(state, [1, -1])
+
         return state
 
     def fill_text_for_html(self, html):
@@ -132,24 +140,23 @@ class HTMLGame:
             action = self.action_sample()
         self.html_vec[self.idx] = action
         html = self.html_covr.convert(self.html_vec, direction=HTML2VECConverter.VEC2HTML_DIRECTION)
-        # html = self.fill_text_for_html(html)
-        # state = self.renderer.render_html(html)
-        state = np.ones([100*100*3,], dtype=np.float32)
-        if len(self.html_vec) == 3 and self.html_vec == [2,1,3]:
-            print('HTML: ', html)
-        # print('Distance: ', distance.braycurtis(self.result_image.flatten(), state.flatten()))
-        # reward = 1.0 if distance.braycurtis(self.result_image.flatten(), state.flatten()) == 0 else -1.0
-        reward = 1000.0 if self.html_vec == [2, 1, 3] else -1.0
+        html = self.fill_text_for_html(html)
+        state = self.renderer.render_html(html)
+        # state = np.zeros([100*100*3,], dtype=np.float32)
+        if state.shape != [100, 100, 3]:
+            print('State shape: ', state.shape)
+        reward = 100.0 if distance.braycurtis(self.result_image.flatten(), state.flatten()) == 0 else 0
+        # reward = 100.0 if self.html_vec == [2, 1, 3] else 0
 
         state = state.flatten()
-        # one_hot_action = np.eye(6, dtype=np.uint8)[action:action+1][0]
-        state = np.concatenate((state, self.html_vec), axis=0)
-        state = np.reshape(state, [1, -1])
+        state = np.concatenate((state, np.array([np.identity(4)[v:v+1] for v in self.html_vec]).flatten()), axis=0)
 
+        # state = np.array([np.identity(4)[v:v+1] for v in self.html_vec]).flatten()
+        state = np.reshape(state, [1, -1])
         self.idx += 1
 
         done = False
-        if reward == 1000.0:
+        if reward == 100.0:
             done = True
         return state, reward, done
 
