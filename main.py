@@ -2,22 +2,27 @@ import tensorflow as tf
 import numpy as np
 from dataset_generator.html_renderer import HTMLGame, HTMLRenderer
 input = tf.placeholder(shape=[None, 100*100*3 + 3*4], dtype=tf.float32)
-W = tf.Variable(tf.zeros([100*100*3 + 3*4, 4]), name="weights")
+hidden_num = 100
+W = tf.Variable(tf.random_uniform([100*100*3 + 3*4, 4]), name="weights")
 
 def model(X, w):
     return tf.matmul(X, w)
 
 Qout = model(input, W)
+Qout_reshaped = tf.reshape(Qout, [4])
 predict = tf.argmax(Qout, 1)
 
 nextQ = tf.placeholder(shape=[1, 4], dtype=tf.float32)
-loss = tf.reduce_sum(tf.square(nextQ - Qout))
-trainer = tf.train.GradientDescentOptimizer(learning_rate=0.2)
+reward_holder = tf.placeholder(shape=[1], dtype=tf.float32)
+action_holder = tf.placeholder(shape=[1], dtype=tf.int32)
+responsible_weight = tf.slice(Qout_reshaped, action_holder, [1])
+loss = -(tf.log(responsible_weight)*reward_holder) #tf.reduce_sum(tf.square(nextQ - Qout))
+trainer = tf.train.GradientDescentOptimizer(learning_rate=0.1)
 updateModel = trainer.minimize(loss)
 
 y = .99
 e = 0.99
-num_episodes = 600000
+num_episodes = 10000
 
 renderer = HTMLRenderer()
 
@@ -46,7 +51,7 @@ with tf.Session() as sess:
 
             # Get new state and reward from environment
             next_state, r, d, = env.step(a[0])
-
+            
             # Obtain the Q' values by feeding the new state through our network
             Q1 = sess.run(Qout, feed_dict={input: next_state})
             # Obtain maxQ' and set our target value for chosen action.
@@ -55,7 +60,7 @@ with tf.Session() as sess:
             targetQ[0, a[0]] = r + y * maxQ1
 
             # Train our network using target and predicted Q values
-            _, W1 = sess.run([updateModel, W], feed_dict={input: state, nextQ: targetQ})
+            _, W1 = sess.run([updateModel, W], feed_dict={input: state, nextQ: targetQ, action_holder: [a[0]], reward_holder: [r]})
             rAll += r
             state = next_state
             if d:

@@ -52,6 +52,7 @@ a {{
         self.app = QApplication([])
         QWebView.__init__(self)
         self.resize(100, 100)
+        self.page().setViewportSize(self.size())
 
     def render_html(self, html):
         """
@@ -59,9 +60,14 @@ a {{
         :param html: 
         :return: 
         """
+        if html.count('<') != html.count('>'):
+            html = ''
+        if html.count('<p>') != html.count('</p>'):
+            html = ''
+        if html.count('><p'):
+            html = ''
         self.setHtml(HTMLRenderer.HTML_WRAPPER.format(html))
         frame = self.page().mainFrame()
-        self.page().setViewportSize(frame.contentsSize())
 
         # render image
         image = QImage(self.page().viewportSize(), QImage.Format_RGB888)
@@ -92,10 +98,12 @@ class HTMLGame:
         'a': 'LinkText',
     }
 
+    REWARD = 10.0
+
     def __init__(self, result_image, renderer):
         self.start_image = result_image
         img = Image.open(self.start_image)
-        self.result_image = np.array(img)
+        self.result_image = np.array(img) / 255.0
         self.html_covr = HTML2VECConverter()
         self.idx = 0
         self.html_vec = [0, 0, 0]
@@ -107,7 +115,8 @@ class HTMLGame:
         html = self.html_covr.convert(self.html_vec, direction=HTML2VECConverter.VEC2HTML_DIRECTION)
         html = self.fill_text_for_html(html)
 
-        state = self.renderer.render_html(html)
+        # state = np.zeros([100 * 100 * 3, ], dtype=np.float32)
+        state = self.renderer.render_html(html) / 255.0
         state = state.flatten()
         state = np.concatenate((state, np.array([np.identity(4)[v:v+1] for v in self.html_vec]).flatten()), axis=0)
         state = np.reshape(state, [1, -1])
@@ -123,10 +132,12 @@ class HTMLGame:
 
     def action_sample(self):
         choices = [d for d in HTML2VECConverter.html_int_map.values()]
+        choices.pop(0)
         return random.choice(choices)
 
     def action_samples(self):
         choices = [d for d in HTML2VECConverter.html_int_map.values()]
+        choices.pop(0)
         return choices
 
     def step(self, action=None):
@@ -141,11 +152,11 @@ class HTMLGame:
         self.html_vec[self.idx] = action
         html = self.html_covr.convert(self.html_vec, direction=HTML2VECConverter.VEC2HTML_DIRECTION)
         html = self.fill_text_for_html(html)
-        state = self.renderer.render_html(html)
+        state = self.renderer.render_html(html) / 255.0
+        # print('MAX: ', state.max())
         # state = np.zeros([100*100*3,], dtype=np.float32)
-        if state.shape != [100, 100, 3]:
-            print('State shape: ', state.shape)
-        reward = 100.0 if distance.braycurtis(self.result_image.flatten(), state.flatten()) == 0 else 0
+        dist = distance.braycurtis(self.result_image.flatten(), state.flatten())
+        reward = HTMLGame.REWARD if dist < 1e-6 else -1.0
         # reward = 100.0 if self.html_vec == [2, 1, 3] else 0
 
         state = state.flatten()
@@ -156,7 +167,7 @@ class HTMLGame:
         self.idx += 1
 
         done = False
-        if reward == 100.0:
+        if reward == HTMLGame.REWARD:
             done = True
         return state, reward, done
 
