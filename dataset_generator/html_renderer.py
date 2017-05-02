@@ -28,9 +28,9 @@ body {{
 div {{
     background: #50C878;
     padding: 10px;
-    margin: 10px;
     border: 2px solid #F4A460;
     border-radius: 5px;
+    font-size: 12px;
 }}
 p {{
     border: 1px solid #00b3f4;
@@ -66,6 +66,7 @@ a {{
             html = ''
         if html.count('><p'):
             html = ''
+        # html = '<p>PText</p><a>LinkText</a>'
         self.setHtml(HTMLRenderer.HTML_WRAPPER.format(html))
         frame = self.page().mainFrame()
 
@@ -106,7 +107,7 @@ class HTMLGame:
         self.result_image = np.array(img) / 255.0
         self.html_covr = HTML2VECConverter()
         self.idx = 0
-        self.html_vec = [0, 0, 0]
+        self.html_vec = [0, 0, 0, 0, 0, 0]
         self.renderer = renderer
 
     def reset(self):
@@ -118,7 +119,7 @@ class HTMLGame:
         # state = np.zeros([100 * 100 * 3, ], dtype=np.float32)
         state = self.renderer.render_html(html) / 255.0
         state = state.flatten()
-        state = np.concatenate((state, np.array([np.identity(4)[v:v+1] for v in self.html_vec]).flatten()), axis=0)
+        state = np.concatenate((state, np.array([np.identity(6)[v:v+1] for v in self.html_vec]).flatten()), axis=0)
         state = np.reshape(state, [1, -1])
 
         return state
@@ -152,17 +153,16 @@ class HTMLGame:
         self.html_vec[self.idx] = action
         html = self.html_covr.convert(self.html_vec, direction=HTML2VECConverter.VEC2HTML_DIRECTION)
         html = self.fill_text_for_html(html)
+
         state = self.renderer.render_html(html) / 255.0
-        # print('MAX: ', state.max())
         # state = np.zeros([100*100*3,], dtype=np.float32)
         dist = distance.braycurtis(self.result_image.flatten(), state.flatten())
-        reward = HTMLGame.REWARD if dist < 1e-6 else -1.0
-        # reward = 100.0 if self.html_vec == [2, 1, 3] else 0
+        reward = HTMLGame.REWARD if dist < 1e-6 else 0
+        # reward = HTMLGame.REWARD if self.html_vec == [2, 1, 3, 4, 1, 5] else 0
 
         state = state.flatten()
-        state = np.concatenate((state, np.array([np.identity(4)[v:v+1] for v in self.html_vec]).flatten()), axis=0)
+        state = np.concatenate((state, np.array([np.identity(6)[v:v+1] for v in self.html_vec]).flatten()), axis=0)
 
-        # state = np.array([np.identity(4)[v:v+1] for v in self.html_vec]).flatten()
         state = np.reshape(state, [1, -1])
         self.idx += 1
 
