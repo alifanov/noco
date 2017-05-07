@@ -99,7 +99,7 @@ class HTMLGame:
         'a': 'LinkText',
     }
 
-    REWARD = 10.0
+    REWARD = 1.0
 
     def __init__(self, result_image, renderer):
         self.start_image = result_image
@@ -151,11 +151,13 @@ class HTMLGame:
         if action is None:
             action = self.action_sample()
         self.html_vec[self.idx] = action
+        if self.html_vec[:3] == [2, 1, 3]:
+            print('HTML vec: ', self.html_vec)
         html = self.html_covr.convert(self.html_vec, direction=HTML2VECConverter.VEC2HTML_DIRECTION)
         html = self.fill_text_for_html(html)
 
-        state = self.renderer.render_html(html) / 255.0
         # state = np.zeros([100*100*3,], dtype=np.float32)
+        state = self.renderer.render_html(html) / 255.0
         dist = distance.braycurtis(self.result_image.flatten(), state.flatten())
         reward = HTMLGame.REWARD if dist < 1e-6 else 0
         # reward = HTMLGame.REWARD if self.html_vec == [2, 1, 3, 4, 1, 5] else 0

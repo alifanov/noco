@@ -9,8 +9,10 @@ class HTML2VECConverter:
         '>': 1,
         '<p': 2,
         '</p>': 3,
-        '<div': 4,
-        '</div>': 5,
+        '<a': 4,
+        '</a>': 5,
+        # '<div': 4,
+        # '</div>': 5,
         # '/>': 4,
         # '<body': 4,
         # '</body>': 5,
@@ -36,8 +38,6 @@ class HTML2VECConverter:
         # '</tr>': 27,
         # '<td': 28,
         # '</td>': 29,
-        # '<link': 30,
-        # '</link>': 31,
         # '<textarea': 32,
         # '</textarea>': 33
     }
