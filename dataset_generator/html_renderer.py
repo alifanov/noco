@@ -118,11 +118,11 @@ class HTMLGame:
 
         # state = np.zeros([100 * 100 * 3, ], dtype=np.float32)
         state = self.renderer.render_html(html) / 255.0
-        state = state.flatten()
-        state = np.concatenate((state, np.array([np.identity(6)[v:v+1] for v in self.html_vec]).flatten()), axis=0)
-        state = np.reshape(state, [1, -1])
+        # state = state.flatten()
+        # state = np.concatenate((state, np.array([np.identity(6)[v:v+1] for v in self.html_vec]).flatten()), axis=0)
+        # state = np.reshape(state, [1, -1])
 
-        return state
+        return state, np.array([np.identity(6)[v:v+1] for v in self.html_vec]).flatten()
 
     def fill_text_for_html(self, html):
         for k,v in HTMLGame.TEXT_CONTENT_MAP.items():
@@ -162,16 +162,16 @@ class HTMLGame:
         reward = HTMLGame.REWARD if dist < 1e-6 else 0
         # reward = HTMLGame.REWARD if self.html_vec == [2, 1, 3, 4, 1, 5] else 0
 
-        state = state.flatten()
-        state = np.concatenate((state, np.array([np.identity(6)[v:v+1] for v in self.html_vec]).flatten()), axis=0)
+        # state = state.flatten()
+        # state = np.concatenate((state, np.array([np.identity(6)[v:v+1] for v in self.html_vec]).flatten()), axis=0)
 
-        state = np.reshape(state, [1, -1])
+        # state = np.reshape(state, [1, -1])
         self.idx += 1
 
         done = False
         if reward == HTMLGame.REWARD:
             done = True
-        return state, reward, done
+        return state, np.array([np.identity(6)[v:v+1] for v in self.html_vec]).flatten(), reward, done
 
 
 # s = HTMLRenderer()
