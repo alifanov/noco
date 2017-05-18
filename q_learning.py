@@ -4,11 +4,12 @@ from dataset_generator.html_renderer import HTMLGame, HTMLRenderer
 
 VEC_SIZE = 6
 
-input_state = tf.placeholder(shape=[None, 100, 100, 3], dtype=tf.float32)
+input_state = tf.placeholder(shape=[None, 100, 100], dtype=tf.float32)
+input_state_reshaped = tf.reshape(input_state, [-1, 100, 100, 1])
 input_vec = tf.placeholder(shape=[None, VEC_SIZE*6], dtype=tf.float32)
 
 conv1 = tf.layers.conv2d(
-      inputs=input_state,
+      inputs=input_state_reshaped,
       filters=32,
       kernel_size=[3, 3],
       padding="same",
@@ -28,7 +29,7 @@ pool2 = tf.layers.max_pooling2d(inputs=conv2, pool_size=[2, 2], strides=2)
 
 # Dense Layer
 pool2_flat = tf.reshape(pool2, [-1, 25 * 25 * 64])
-dense = tf.layers.dense(inputs=pool2_flat, units=1024, activation=tf.nn.relu)
+dense = tf.layers.dense(inputs=pool2_flat, units=256, activation=tf.nn.relu)
 
 # Logits Layer
 conv_state = tf.layers.dense(inputs=dense, units=36)
@@ -55,14 +56,14 @@ updateModel = trainer.minimize(loss)
 
 y = .99
 e = 0.99
-num_episodes = 20000
+num_episodes = 200000
 
 renderer = HTMLRenderer()
 
 env = HTMLGame('dataset_generator/test_render.png', renderer)
 
 def decode_state(state):
-    return [np.argmax(v) for v in np.split(state[0][100*100*3:], VEC_SIZE)]
+    return [np.argmax(v) for v in np.split(state[0][100*100*1:], VEC_SIZE)]
 
 def expand(v):
     return np.expand_dims(v, axis=0)

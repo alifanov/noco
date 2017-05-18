@@ -79,7 +79,7 @@ a {{
         bytes = image.bits().asstring(image.byteCount())
 
         mode = "RGB"
-        pilimg = Image.frombuffer(mode, (image.width(), image.height()), bytes, 'raw', mode, 0, 1)
+        pilimg = Image.frombuffer(mode, (image.width(), image.height()), bytes, 'raw', mode, 0, 1).convert('L')
         # pilimg.show()
 
         # pilimg.save('test_render2.png')
@@ -103,7 +103,7 @@ class HTMLGame:
 
     def __init__(self, result_image, renderer):
         self.start_image = result_image
-        img = Image.open(self.start_image)
+        img = Image.open(self.start_image).convert('L')
         self.result_image = np.array(img) / 255.0
         self.html_covr = HTML2VECConverter()
         self.idx = 0
@@ -156,16 +156,11 @@ class HTMLGame:
         html = self.html_covr.convert(self.html_vec, direction=HTML2VECConverter.VEC2HTML_DIRECTION)
         html = self.fill_text_for_html(html)
 
-        # state = np.zeros([100*100*3,], dtype=np.float32)
         state = self.renderer.render_html(html) / 255.0
         dist = distance.braycurtis(self.result_image.flatten(), state.flatten())
         reward = HTMLGame.REWARD if dist < 1e-6 else 0
         # reward = HTMLGame.REWARD if self.html_vec == [2, 1, 3, 4, 1, 5] else 0
 
-        # state = state.flatten()
-        # state = np.concatenate((state, np.array([np.identity(6)[v:v+1] for v in self.html_vec]).flatten()), axis=0)
-
-        # state = np.reshape(state, [1, -1])
         self.idx += 1
 
         done = False
