@@ -5,24 +5,26 @@ class HTML2VECConverter:
     HTML2VEC_DIRECTION = 0
     VEC2HTML_DIRECTION = 1
     html_int_map = {
-        '': 0,
+        # '': 0,
         '>': 1,
         '<p': 2,
         '</p>': 3,
         '<a': 4,
         '</a>': 5,
-        # '<div': 4,
-        # '</div>': 5,
+        '<div': 6,
+        '</div>': 7,
+        '<body>': 8,
+        '</body>': 9,
+        '<input': 10,
+        '</input>': 11,
+        '<button': 12,
+        '</button>': 13,
+        '<textarea': 14,
+        '</textarea>': 15
         # '/>': 4,
-        # '<body': 4,
-        # '</body>': 5,
         # '': 6,
-        # '<input': 7,
-        # '</input>': 8,
         # '<table': 9,
         # '</table>': 10,
-        # '<button': 13,
-        # '</button>': 14,
         # 'class=': 15,
         # '<head': 16,
         # '</head>': 17,
@@ -38,8 +40,6 @@ class HTML2VECConverter:
         # '</tr>': 27,
         # '<td': 28,
         # '</td>': 29,
-        # '<textarea': 32,
-        # '</textarea>': 33
     }
 
 

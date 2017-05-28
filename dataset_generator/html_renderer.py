@@ -159,6 +159,10 @@ class HTMLGame:
         state = self.renderer.render_html(html) / 255.0
         dist = distance.braycurtis(self.result_image.flatten(), state.flatten())
         reward = HTMLGame.REWARD if dist < 1e-6 else 0
+        if set([2,1,3]) < set(self.html_vec):
+            reward = HTMLGame.REWARD/2.0
+        if set([4,1,5]) < set(self.html_vec):
+            reward = HTMLGame.REWARD/2.0
         # reward = HTMLGame.REWARD if self.html_vec == [2, 1, 3, 4, 1, 5] else 0
 
         self.idx += 1
