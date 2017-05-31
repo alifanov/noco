@@ -65,7 +65,6 @@ a {{
         # if html.count('><p'):
         #     html = ''
         # html = '<p>PText</p><a>LinkText</a>'
-        print(html)
         self.setHtml(HTMLRenderer.HTML_WRAPPER.format(html))
         frame = self.page().mainFrame()
 
