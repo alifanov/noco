@@ -20,7 +20,8 @@ def generate_dataset():
             if tag == converter.html_int_map['</body>']:
                 break
         html = converter.convert(item, direction=converter.VEC2HTML_DIRECTION)
-        print(html)
+        # TODO: add fill text in HTML
+        print(html) #TODO: filter "button<input<textarea"
         if html.count('</') != html.count('<')/2:
             continue
         if html.count('<') != html.count('>'):
