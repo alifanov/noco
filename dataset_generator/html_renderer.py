@@ -42,9 +42,7 @@ a {{
     color: #2A52BE;
 }}
 </style>
-<body>
 {}
-</body>
 </html>
 """
 
@@ -64,9 +62,10 @@ a {{
             html = ''
         if html.count('<p>') != html.count('</p>'):
             html = ''
-        if html.count('><p'):
-            html = ''
+        # if html.count('><p'):
+        #     html = ''
         # html = '<p>PText</p><a>LinkText</a>'
+        print(html)
         self.setHtml(HTMLRenderer.HTML_WRAPPER.format(html))
         frame = self.page().mainFrame()
 
@@ -124,7 +123,8 @@ class HTMLGame:
 
         return state, np.array([np.identity(6)[v:v+1] for v in self.html_vec]).flatten()
 
-    def fill_text_for_html(self, html):
+    @classmethod
+    def fill_text_for_html(cls, html):
         for k,v in HTMLGame.TEXT_CONTENT_MAP.items():
             tag = '<{tag}></{tag}>'.format(tag=k)
             tag_text = '<{tag}>{text}</{tag}>'.format(text=v, tag=k)

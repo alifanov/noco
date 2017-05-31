@@ -15,12 +15,12 @@ class HTML2VECConverter:
         '</div>': 7,
         '<body>': 8,
         '</body>': 9,
-        '<input': 10,
-        '</input>': 11,
-        '<button': 12,
-        '</button>': 13,
-        '<textarea': 14,
-        '</textarea>': 15
+        # '<input': 10,
+        # '</input>': 11,
+        # '<button': 12,
+        # '</button>': 13,
+        # '<textarea': 14,
+        # '</textarea>': 15
         # '/>': 4,
         # '': 6,
         # '<table': 9,
