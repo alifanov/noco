@@ -49,7 +49,7 @@ a {{
     def __init__(self):
         self.app = QApplication([])
         QWebView.__init__(self)
-        self.resize(100, 100)
+        self.resize(256, 256)
         self.page().setViewportSize(self.size())
 
     def render_html(self, html):
