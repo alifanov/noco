@@ -21,8 +21,10 @@ def generate_dataset():
         item = converter.convert(html)
         html = HTMLGame.fill_text_for_html(html)
         print(html)
-        image_data = renderer.render_html(html)
-        np.save('images/{}'.format('-'.join([str(i) for i in item])), image_data)
+        image_data, image = renderer.render_html(html)
+        fname = '-'.join([str(i) for i in item])
+        image.save('images/{}.png'.format(fname))
+        np.save('images/{}'.format(fname), image_data)
 
 if __name__ == "__main__":
     generate_dataset()

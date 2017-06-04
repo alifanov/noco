@@ -11,8 +11,10 @@ from PyQt5.QtWebKitWidgets import *
 from PyQt5.QtCore import *
 from PIL import Image
 
+
 def decode_state(state):
     return [np.argmax(v) for v in np.split(state[0], 3)]
+
 
 class HTMLRenderer(QWebView):
     """
@@ -23,7 +25,7 @@ class HTMLRenderer(QWebView):
 <style>
 body {{
     background: #eee;
-    color: #449EF3;
+    color: #0c69c0;
 }}
 div {{
     background: #50C878;
@@ -49,7 +51,7 @@ a {{
     def __init__(self):
         self.app = QApplication([])
         QWebView.__init__(self)
-        self.resize(100, 100)
+        self.resize(256, 256)
         self.page().setViewportSize(self.size())
 
     def render_html(self, html):
@@ -77,11 +79,11 @@ a {{
         bytes = image.bits().asstring(image.byteCount())
 
         mode = "RGB"
-        pilimg = Image.frombuffer(mode, (image.width(), image.height()), bytes, 'raw', mode, 0, 1).convert('L')
+        pilimg = Image.frombuffer(mode, (image.width(), image.height()), bytes, 'raw', mode, 0, 1)
         # pilimg.show()
 
         # pilimg.save('test_render2.png')
-        return np.array(pilimg)
+        return np.array(pilimg), pilimg
 
 
 class HTMLGame:
